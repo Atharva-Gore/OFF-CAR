@@ -1,93 +1,78 @@
-const car = document.getElementById("car");
-const obstacle = document.getElementById("obstacle");
-const scoreDisplay = document.getElementById("score");
-const highScoreDisplay = document.getElementById("highScore");
+const player = document.getElementById("playerCar");
+const enemy = document.getElementById("enemyCar");
+const scoreEl = document.getElementById("score");
+const highScoreEl = document.getElementById("highScore");
 const restartBtn = document.getElementById("restartBtn");
 
-let carLeft = 125;
 let score = 0;
 let highScore = localStorage.getItem("highScore") || 0;
-let speed = 20;
-let gameRunning = true;
+let gameInterval;
+let enemySpeed = 2;
 
-highScoreDisplay.textContent = highScore;
+highScoreEl.innerText = highScore;
 
-function moveCar(dir) {
-  if (!gameRunning) return;
-  if (dir === "left" && carLeft > 0) carLeft -= 25;
-  else if (dir === "right" && carLeft < 250) carLeft += 25;
-  car.style.left = carLeft + "px";
+function resetEnemy() {
+  enemy.style.top = "-50px";
+  enemy.style.left = `${Math.floor(Math.random() * 260)}px`;
 }
 
-document.addEventListener("keydown", (e) => {
-  if (e.key === "ArrowLeft") moveCar("left");
-  else if (e.key === "ArrowRight") moveCar("right");
-});
+function checkCollision() {
+  const playerRect = player.getBoundingClientRect();
+  const enemyRect = enemy.getBoundingClientRect();
 
-document.addEventListener("touchstart", (e) => {
-  const x = e.touches[0].clientX;
-  if (x < window.innerWidth / 2) moveCar("left");
-  else moveCar("right");
-});
-
-function randomLane() {
-  return Math.floor(Math.random() * 6) * 50;
+  return !(
+    playerRect.bottom < enemyRect.top ||
+    playerRect.top > enemyRect.bottom ||
+    playerRect.right < enemyRect.left ||
+    playerRect.left > enemyRect.right
+  );
 }
 
-function dropObstacle() {
-  let obstacleTop = -100;
-  let obstacleLeft = randomLane();
-  obstacle.style.top = obstacleTop + "px";
-  obstacle.style.left = obstacleLeft + "px";
-
-  const dropInterval = setInterval(() => {
-    if (!gameRunning) return clearInterval(dropInterval);
-
-    obstacleTop += 5;
-    obstacle.style.top = obstacleTop + "px";
-
-    if (obstacleTop > 500) {
-      clearInterval(dropInterval);
-      score++;
-      scoreDisplay.textContent = score;
-      if (score % 5 === 0 && speed > 8) speed -= 2;
-      dropObstacle();
-    }
-
-    if (
-      obstacleTop > 400 &&
-      obstacleTop < 510 &&
-      obstacleLeft === carLeft
-    ) {
-      gameOver(dropInterval);
-    }
-  }, speed);
-}
-
-function gameOver(interval) {
-  clearInterval(interval);
-  gameRunning = false;
-  car.classList.add("crash");
-
+function updateScore() {
+  score++;
+  scoreEl.innerText = score;
   if (score > highScore) {
     highScore = score;
+    highScoreEl.innerText = highScore;
     localStorage.setItem("highScore", highScore);
-    highScoreDisplay.textContent = highScore;
   }
-
-  restartBtn.style.display = "inline-block";
 }
 
-function restartGame() {
-  car.classList.remove("crash");
-  carLeft = 125;
-  car.style.left = carLeft + "px";
+function startGame() {
   score = 0;
-  speed = 20;
-  scoreDisplay.textContent = 0;
-  restartBtn.style.display = "none";
-  gameRunning = true;
-  dropObstacle();
+  scoreEl.innerText = score;
+  resetEnemy();
+
+  gameInterval = setInterval(() => {
+    let enemyTop = parseInt(enemy.style.top);
+    enemyTop += enemySpeed;
+    enemy.style.top = `${enemyTop}px`;
+
+    if (enemyTop > 500) {
+      resetEnemy();
+      updateScore();
+    }
+
+    if (checkCollision()) {
+      clearInterval(gameInterval);
+      alert("Game Over! 🚫");
+    }
+  }, 20);
 }
 
-dropObstacle();
+restartBtn.addEventListener("click", () => {
+  clearInterval(gameInterval);
+  player.style.left = "130px";
+  startGame();
+});
+
+document.addEventListener("keydown", (e) => {
+  const playerLeft = parseInt(player.style.left);
+  if (e.key === "ArrowLeft" && playerLeft > 0) {
+    player.style.left = `${playerLeft - 20}px`;
+  } else if (e.key === "ArrowRight" && playerLeft < 260) {
+    player.style.left = `${playerLeft + 20}px`;
+  }
+});
+
+window.onload = startGame;
