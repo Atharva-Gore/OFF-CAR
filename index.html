@@ -2,29 +2,29 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>🚗 Car Dodge</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <h1>🚗 Car Dodge</h1>
-  <div id="gameContainer">
-    <div class="lane-divider"></div>
-    <img id="enemyCar1" class="enemyCar" src="images/enemy1.png" alt="Enemy Car 1">
-    <img id="enemyCar2" class="enemyCar" src="images/enemy2.png" alt="Enemy Car 2">
-    <img id="playerCar" src="images/player.png" alt="Player Car">
+
+  <div class="game-container" id="gameContainer">
+    <img id="player" src="images/car-svgrepo-com.svg" class="car" />
+    <img id="enemy1" src="images/truck-svgrepo-com.svg" class="car enemy" />
+    <img id="enemy2" src="images/truck-svgrepo-com.svg" class="car enemy" />
   </div>
 
-  <div class="scoreBoard">
-    <p>Score: <span id="score">0</span></p>
-    <p>High Score: <span id="highScore">0</span></p>
+  <div class="scoreboard">
+    <p>🎯 Score: <span id="score">0</span></p>
+    <p>🏆 High Score: <span id="highScore">0</span></p>
   </div>
 
-  <button id="restartBtn">Restart</button>
+  <button id="restartBtn">🔁 Restart</button>
 
   <audio id="crashSound" src="sounds/crash.mp3"></audio>
-  <audio id="engineSound" src="sounds/engine.mp3" autoplay loop></audio>
   <audio id="pointSound" src="sounds/point.mp3"></audio>
+  <audio id="engineSound" src="sounds/ferrari-458-italia-sound-effect-going-fast-360530.mp3" loop></audio>
 
   <script src="script.js"></script>
 </body>
