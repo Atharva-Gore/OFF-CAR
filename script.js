@@ -1,78 +1,64 @@
-const player = document.getElementById("playerCar");
-const enemy = document.getElementById("enemyCar");
-const scoreEl = document.getElementById("score");
-const highScoreEl = document.getElementById("highScore");
-const restartBtn = document.getElementById("restartBtn");
-
-let score = 0;
-let highScore = localStorage.getItem("highScore") || 0;
-let gameInterval;
-let enemySpeed = 2;
-
-highScoreEl.innerText = highScore;
-
-function resetEnemy() {
-  enemy.style.top = "-50px";
-  enemy.style.left = `${Math.floor(Math.random() * 260)}px`;
+body {
+  background-color: #111;
+  color: white;
+  font-family: sans-serif;
+  text-align: center;
+  margin: 0;
+  padding: 0;
 }
 
-function checkCollision() {
-  const playerRect = player.getBoundingClientRect();
-  const enemyRect = enemy.getBoundingClientRect();
-
-  return !(
-    playerRect.bottom < enemyRect.top ||
-    playerRect.top > enemyRect.bottom ||
-    playerRect.right < enemyRect.left ||
-    playerRect.left > enemyRect.right
-  );
+h1 {
+  margin-top: 20px;
+  font-size: 2rem;
 }
 
-function updateScore() {
-  score++;
-  scoreEl.innerText = score;
-  if (score > highScore) {
-    highScore = score;
-    highScoreEl.innerText = highScore;
-    localStorage.setItem("highScore", highScore);
-  }
+#gameContainer {
+  width: 375px;
+  height: 500px;
+  margin: 20px auto;
+  background: #333;
+  border: 3px solid #888;
+  position: relative;
+  overflow: hidden;
 }
 
-function startGame() {
-  score = 0;
-  scoreEl.innerText = score;
-  resetEnemy();
-
-  gameInterval = setInterval(() => {
-    let enemyTop = parseInt(enemy.style.top);
-    enemyTop += enemySpeed;
-    enemy.style.top = `${enemyTop}px`;
-
-    if (enemyTop > 500) {
-      resetEnemy();
-      updateScore();
-    }
-
-    if (checkCollision()) {
-      clearInterval(gameInterval);
-      alert("Game Over! 🚫");
-    }
-  }, 20);
+.lane-divider {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 5px;
+  height: 100%;
+  background: #ccc;
+  transform: translateX(-50%);
 }
 
-restartBtn.addEventListener("click", () => {
-  clearInterval(gameInterval);
-  player.style.left = "130px";
-  startGame();
-});
+.enemyCar, #playerCar {
+  position: absolute;
+  width: 50px;
+  height: 90px;
+}
 
-document.addEventListener("keydown", (e) => {
-  const playerLeft = parseInt(player.style.left);
-  if (e.key === "ArrowLeft" && playerLeft > 0) {
-    player.style.left = `${playerLeft - 20}px`;
-  } else if (e.key === "ArrowRight" && playerLeft < 260) {
-    player.style.left = `${playerLeft + 20}px`;
-  }
-});
+#playerCar {
+  bottom: 10px;
+  left: 175px;
+}
 
-window.onload = startGame;
+.scoreBoard {
+  margin-top: 10px;
+}
+
+#restartBtn {
+  margin-top: 10px;
+  padding: 8px 20px;
+  font-size: 1rem;
+  background: #00aaff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  display: none;
+}
+
+#restartBtn:hover {
+  background: #007acc;
+}
