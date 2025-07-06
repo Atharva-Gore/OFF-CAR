@@ -1,95 +1,96 @@
-const playerCar = document.getElementById("playerCar");
-const enemyCar1 = document.getElementById("enemyCar1");
-const enemyCar2 = document.getElementById("enemyCar2");
-const scoreDisplay = document.getElementById("score");
-const highScoreDisplay = document.getElementById("highScore");
+const player = document.getElementById("player");
+const enemy = document.getElementById("enemy");
+const gameContainer = document.getElementById("gameContainer");
+const scoreEl = document.getElementById("score");
+const highScoreEl = document.getElementById("highScore");
 const restartBtn = document.getElementById("restartBtn");
+
 const crashSound = document.getElementById("crashSound");
 const engineSound = document.getElementById("engineSound");
-const pointSound = document.getElementById("pointSound");
 
-let playerX = 175;
 let score = 0;
 let highScore = localStorage.getItem("highScore") || 0;
-let gameInterval;
+highScoreEl.innerText = highScore;
+
 let enemySpeed = 3;
-let enemies = [enemyCar1, enemyCar2];
+let gameRunning = true;
 
-highScoreDisplay.textContent = highScore;
-
-document.addEventListener("keydown", (e) => {
-  if (e.key === "ArrowLeft" && playerX > 75) {
-    playerX -= 100;
-  } else if (e.key === "ArrowRight" && playerX < 275) {
-    playerX += 100;
-  }
-  playerCar.style.left = `${playerX}px`;
-});
-
-function resetEnemy(enemy) {
-  enemy.style.top = "-150px";
-  enemy.style.left = `${75 + Math.floor(Math.random() * 3) * 100}px`;
+function resetEnemy() {
+  enemy.style.top = "-100px";
+  enemy.style.left = `${Math.floor(Math.random() * 250)}px`;
 }
 
-function updateGame() {
-  enemies.forEach((enemy) => {
-    let currentTop = parseInt(enemy.style.top || "-150");
-    if (currentTop >= 500) {
-      resetEnemy(enemy);
-      updateScore();
-    } else {
-      enemy.style.top = `${currentTop + enemySpeed}px`;
-    }
-
-    if (checkCollision(playerCar, enemy)) {
-      crashSound.play();
-      stopGame();
-      setTimeout(startGame, 1500); // restart after 1.5 seconds
-    }
-  });
-}
-
-function updateScore() {
-  score++;
-  scoreDisplay.textContent = score;
-  pointSound.play();
-  if (score > highScore) {
-    highScore = score;
-    highScoreDisplay.textContent = highScore;
-    localStorage.setItem("highScore", highScore);
+function moveEnemy() {
+  if (!gameRunning) return;
+  const enemyTop = parseInt(window.getComputedStyle(enemy).getPropertyValue("top"));
+  if (enemyTop >= 500) {
+    score++;
+    scoreEl.innerText = score;
+    resetEnemy();
+  } else {
+    enemy.style.top = `${enemyTop + enemySpeed}px`;
   }
 }
 
-function checkCollision(car1, car2) {
-  const r1 = car1.getBoundingClientRect();
-  const r2 = car2.getBoundingClientRect();
-  return !(
-    r1.bottom < r2.top ||
-    r1.top > r2.bottom ||
-    r1.right < r2.left ||
-    r1.left > r2.right
-  );
+function detectCollision() {
+  const playerRect = player.getBoundingClientRect();
+  const enemyRect = enemy.getBoundingClientRect();
+
+  const collision =
+    playerRect.left < enemyRect.right &&
+    playerRect.right > enemyRect.left &&
+    playerRect.top < enemyRect.bottom &&
+    playerRect.bottom > enemyRect.top;
+
+  if (collision) {
+    gameRunning = false;
+    crashSound.play();
+    engineSound.pause();
+    restartBtn.style.display = "inline-block";
+
+    if (score > highScore) {
+      highScore = score;
+      localStorage.setItem("highScore", highScore);
+      highScoreEl.innerText = highScore;
+    }
+
+    setTimeout(() => {
+      restartGame();
+    }, 2000);
+  }
 }
 
-function startGame() {
+function movePlayer(e) {
+  const left = parseInt(window.getComputedStyle(player).getPropertyValue("left"));
+
+  if (e.key === "ArrowLeft" && left > 0) {
+    player.style.left = `${left - 15}px`;
+  } else if (e.key === "ArrowRight" && left < 250) {
+    player.style.left = `${left + 15}px`;
+  }
+}
+
+function restartGame() {
   score = 0;
-  playerX = 175;
-  playerCar.style.left = `${playerX}px`;
-  enemies.forEach(resetEnemy);
-  gameInterval = setInterval(updateGame, 20);
+  scoreEl.innerText = score;
+  player.style.left = "125px";
+  resetEnemy();
+  gameRunning = true;
+  restartBtn.style.display = "none";
   engineSound.play();
 }
 
-function stopGame() {
-  clearInterval(gameInterval);
-  engineSound.pause();
-  engineSound.currentTime = 0;
+restartBtn.addEventListener("click", restartGame);
+document.addEventListener("keydown", movePlayer);
+
+function gameLoop() {
+  if (gameRunning) {
+    moveEnemy();
+    detectCollision();
+  }
+  requestAnimationFrame(gameLoop);
 }
 
-restartBtn.addEventListener("click", () => {
-  stopGame();
-  restartBtn.style.display = "none";
-  startGame();
-});
-
-startGame();
+resetEnemy();
+engineSound.play();
+gameLoop();
