@@ -2,21 +2,30 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>🚗 Car Dodge</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <h1>🚗 Car Dodge</h1>
   <div id="gameContainer">
-    <div id="enemyCar">🚙</div>
-    <div id="playerCar">🚗</div>
+    <div class="lane-divider"></div>
+    <img id="enemyCar1" class="enemyCar" src="images/enemy1.png" alt="Enemy Car 1">
+    <img id="enemyCar2" class="enemyCar" src="images/enemy2.png" alt="Enemy Car 2">
+    <img id="playerCar" src="images/player.png" alt="Player Car">
   </div>
+
   <div class="scoreBoard">
     <p>Score: <span id="score">0</span></p>
     <p>High Score: <span id="highScore">0</span></p>
   </div>
+
   <button id="restartBtn">Restart</button>
+
+  <audio id="crashSound" src="sounds/crash.mp3"></audio>
+  <audio id="engineSound" src="sounds/engine.mp3" autoplay loop></audio>
+  <audio id="pointSound" src="sounds/point.mp3"></audio>
+
   <script src="script.js"></script>
 </body>
 </html>
